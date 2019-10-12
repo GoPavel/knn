@@ -64,8 +64,9 @@ mean :: [Double] -> Double
 mean xs = sum xs / fromIntegral (length xs)
 
 argmax :: (Ord a, Num a) => V.Vector a -> V.Vector Int -> Int -> Int
-argmax vals args maxArgs = V.maxIndex $ V.generate maxArgs $ \iCls ->
-  V.sum $ V.ifilter (\ i _ -> args V.! i == iCls) $ V.takeWhile (/=0) vals
+argmax vals args maxArgs = (args V.!) $ V.maxIndex $
+  V.generate maxArgs $ \iCls ->
+    V.sum $ V.ifilter (\ i _ -> args V.! i == iCls) $ V.takeWhile (/=0) vals
 
 (//) :: (Integral a, Fractional b) => a -> a -> b
 a // b = fromIntegral a / fromIntegral b
@@ -79,9 +80,6 @@ forV = flip V.map
 
 iforV :: V.Vector a -> (Int -> a -> b) -> V.Vector b
 iforV = flip V.imap
-
--- checkBound :: V.Vector a -> Int -> a -> a
--- checkBound vec ix 
 
 maxDist :: V.Vector a -> (a -> a -> Double) -> Double
 maxDist xs ro = V.maximum $

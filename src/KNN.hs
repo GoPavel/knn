@@ -90,10 +90,10 @@ knnScore (Config
        return (y, guessedY)
   confuseMatrix <- DM.newMatrix 0 maxY maxY :: ST s (DM.STMatrix s Double) -- TODO
   V.forM_ results $ \ (y, y') ->
-    DM.modifyMatrix confuseMatrix (y-1) y' (+1)
-  -- m <- DM.freezeMatrix confuseMatrix
-  -- trace (show m) $ return ()
-  score <- macroF <$> DM.freezeMatrix confuseMatrix
+    DM.modifyMatrix confuseMatrix (y-1) (y'-1) (+1)
+  confuseMatrix' <- DM.freezeMatrix confuseMatrix
+  let score = macroF confuseMatrix'
+  -- trace (show confuseMatrix') $ trace ("Score: " <> show score) $ return ()
   return score
 
 knnCalc :: Kernel
@@ -122,13 +122,12 @@ knnChart :: KernelTag
          -> Int
          -> IO ()
 knnChart kern ro xs ys maxY = do
-  let rangeH = V.fromList [1, 2, 3, 5, 10, 20, 30, 50, 60, 80, 100, 150, 200, 300]
-  pb <- PB.newProgressBar PB.defStyle 10 (PB.Progress 0 (V.length
-                                                        rangeH) ())
+  let rangeH = V.fromList [0.1, 0.2..100]
+  pb <- PB.newProgressBar PB.defStyle 10 (PB.Progress 0 (V.length rangeH) ())
   fscores <- V.forM rangeH $ \h -> do
-        PB.incProgress pb 1
-        let config = Config kern (Variable h) ro
+        let config = Config kern (Fixed h) ro
             !fscore = knnScore config xs ys maxY
+        PB.incProgress pb 1
         return fscore
   -- print $ knnScore (Config kern (Variable 3) ro) xs ys maxY
-  drawChart (V.map fromIntegral rangeH) $ parVector 1 fscores
+  drawChart rangeH $ parVector 1 fscores

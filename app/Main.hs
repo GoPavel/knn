@@ -10,13 +10,11 @@ import KNN (knnFindConfig, knnChart)
 dataFile :: String
 dataFile = "data/phpSZJq5T.csv" -- https://www.openml.org/d/1514
 
--- Ideal config:
---   Config Uniform (Fixed 10.0) Manhattan
-
 main :: IO ()
 main = do
   (xs, ys) <- readDataN dataFile
   let maxY = 10
   -- _finalConfig <- knnFindConfig xs ys maxY
-  knnChart Triangular Euclidean xs ys maxY
+  -- _finalConfig: Uniform (Fixed 1.0e-4) Manhattan
+  knnChart Uniform Manhattan xs ys maxY
   return ()
